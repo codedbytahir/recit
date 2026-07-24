@@ -1,0 +1,52 @@
+{
+  "name": "@recit/cli",
+  "version": "1.0.0",
+  "description": "Screen recording tool for AI agents — $0 cost, 100% local, no cloud",
+  "type": "module",
+  "main": "dist/mcp-entry.js",
+  "bin": {
+    "recit": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/cli/index.js",
+    "mcp": "node dist/mcp-entry.js"
+  },
+  "keywords": [
+    "screen-recording",
+    "screenshot",
+    "mcp",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "ffmpeg",
+    "cli",
+    "model-context-protocol"
+  ],
+  "author": "recit",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^2.12.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/recit-ai/recit"
+  }
+}

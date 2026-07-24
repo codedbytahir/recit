@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>recit — Screen Recording for AI Agents</title>
+<meta name="description" content="Free, open-source CLI + MCP screen recording tool for AI agents. Record it. Agents see it. Zero cost. 100% local.">
+<link rel="icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #fa520f;
+    --primary-deep: #cc3a05;
+    --primary-light: #ff6b2e;
+    --cream: #fff8e0;
+    --cream-light: #fffaeb;
+    --cream-deeper: #fff0c2;
+    --beige-deep: #e6d5a8;
+    --ink: #1f1f1f;
+    --ink-tint: #3d3d3d;
+    --charcoal: #2c2c2c;
+    --slate: #4a4a4a;
+    --steel: #6a6a6a;
+    --muted: #a8a8a8;
+    --hairline: #e5e5e5;
+    --hairline-soft: #ededed;
+    --canvas: #ffffff;
+    --surface: #fafafa;
+    --code-bg: #1c1c1e;
+    --on-dark: #ffffff;
+    --on-dark-muted: #a8a8a8;
+    --sunset-1: #ffd06a;
+    --sunset-2: #ffb83e;
+    --sunset-3: #ffa110;
+    --sunset-4: #ff8105;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--canvas);
+    line-height: 1.55;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ====== SVG ICON ====== */
+  .svg-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+  .svg-icon.sm { width: 16px; height: 16px; }
+  .svg-icon.lg { width: 28px; height: 28px; }
+
+  /* ====== NAV ====== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(255,248,224,0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--hairline);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+  }
+  .nav-brand img { width: 28px; height: 28px; border-radius: var(--radius-sm); }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--ink-tint);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-cta {
+    background: var(--primary) !important;
+    color: var(--on-dark) !important;
+    padding: 8px 18px !important;
+    border-radius: var(--radius-md) !important;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--primary-deep) !important; color: #fff !important; }
+
+  /* Mobile menu toggle */
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .nav-toggle { display: block; }
+    .nav-links {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: rgba(255,248,224,0.98);
+      backdrop-filter: blur(16px);
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--hairline);
+      transform: translateY(-120%);
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .nav-links.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    .nav-links a {
+      padding: 14px 24px;
+      font-size: 15px;
+      border-bottom: 1px solid var(--hairline-soft);
+      width: 100%;
+    }
+    .nav-links a:last-child { border-bottom: none; }
+    .nav-cta {
+      margin: 8px 24px;
+      text-align: center;
+      width: calc(100% - 48px);
+    }
+  }
+
+  /* ====== HERO ====== */
+  .hero {
+    padding: 130px 24px 96px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--cream) 0%, var(--canvas) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sunset-1), var(--sunset-2), var(--sunset-3), var(--sunset-4), var(--primary));
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cream-deeper);
+    border: 1px solid var(--beige-deep);
+    border-radius: var(--radius-full);
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-tint);
+    margin-bottom: 28px;
+  }
+  .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+  .hero h1 {
+    font-size: clamp(2rem, 5.5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.08;
+    margin-bottom: 20px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero h1 .highlight { color: var(--primary); }
+  .hero .subtitle {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--steel);
+    max-width: 560px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--on-dark);
+    box-shadow: inset rgba(255,255,255,0.2) 0px 0.5px 0px 0px, inset rgba(0,0,0,0.2) 0px 0px 0px 0.5px;
+  }
+  .btn-primary:hover { background: var(--primary-deep); transform: translateY(-1px); }
+  .btn-cream {
+    background: var(--cream);
+    color: var(--ink);
+    border: 1px solid var(--beige-deep);
+  }
+  .btn-cream:hover { background: var(--cream-deeper); }
+  .hero-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--code-bg);
+    color: var(--on-dark);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    max-width: 100%;
+    text-align: left;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .hero-code .copy-btn {
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--on-dark-muted);
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .hero-code .copy-btn:hover { background: rgba(255,255,255,0.15); }
+  .hero-code .cmd { color: #00cec9; }
+  .hero-code .comment { color: #6a6a6a; }
+
+  @media (max-width: 500px) {
+    .hero { padding: 110px 16px 72px; }
+    .hero-code { font-size: 11px; padding: 12px 14px; }
+  }
+
+  /* ====== STATS ====== */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 48px 24px;
+    border-bottom: 1px solid var(--hairline);
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; min-width: 80px; }
+  .stat .num {
+    font-size: clamp(1.6rem, 4vw, 2rem);
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -1px;
+  }
+  .stat .label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  @media (max-width: 500px) {
+    .stats { gap: 24px 32px; }
+  }
+
+  /* ====== SECTIONS ====== */
+  section { padding: 80px 24px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    max-width: 640px;
+  }
+  .section-desc {
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    color: var(--slate);
+    max-width: 560px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+  }
+  @media (max-width: 768px) {
+    section { padding: 64px 16px; }
+  }
+
+  /* ====== FEATURES GRID ====== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all 0.2s;
+  }
+  .feature-card:hover {
+    border-color: var(--beige-deep);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .feature-card .icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: var(--cream);
+    border: 1px solid var(--hairline);
+    color: var(--primary);
+  }
+  .feature-card .icon-wrap .svg-icon { width: 22px; height: 22px; stroke: var(--primary); }
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .feature-card p {
+    font-size: 0.88rem;
+    color: var(--slate);
+    line-height: 1.55;
+  }
+  .feature-card .free-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--primary);
+    background: rgba(250,82,15,0.08);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  /* ====== CODE SECTION ====== */
+  .code-section {
+    background: var(--cream-light);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .code-section .section-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .code-section .section-inner { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .code-block {
+    background: var(--code-bg);
+    color: var(--on-dark);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    white-space: pre;
+    -webkit-overflow-scrolling: touch;
+  }
+  .code-block .cmd { color: #00cec9; }
+  .code-block .comment { color: #6a6a6a; }
+  .code-block .string { color: #ffd06a; }
+  .code-block .key { color: #74b9ff; }
+
+  @media (max-width: 500px) {
+    .code-block { font-size: 11.5px; padding: 16px; }
+  }
+
+  /* ====== HOW IT WORKS ====== */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    counter-reset: step;
+  }
+  @media (max-width: 768px) { .steps { grid-template-columns: 1fr; } }
+  .step {
+    counter-increment: step;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    position: relative;
+  }
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    top: -14px;
+    left: 24px;
+    background: var(--primary);
+    color: var(--on-dark);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .step h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-top: 8px;
+  }
+  .step p {
+    font-size: 0.9rem;
+    color: var(--slate);
+  }
+
+  /* ====== IMAGE FEATURE ====== */
+  .image-feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .image-feature { grid-template-columns: 1fr; gap: 28px; }
+    .image-feature.reverse { direction: ltr; }
+  }
+  .image-feature .feat-img {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--hairline);
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+  .image-feature .feat-content .section-title { font-size: clamp(1.4rem, 3vw, 2rem); }
+
+  /* ====== AGENT PILLS ====== */
+  .agent-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .agent-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .agent-pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ====== TABLE ====== */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .agents-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 500px;
+  }
+  .agents-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--steel);
+    background: var(--surface);
+    border-bottom: 2px solid var(--hairline);
+  }
+  .agents-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--hairline-soft);
+    vertical-align: middle;
+  }
+  .agents-table td:first-child { font-weight: 600; white-space: nowrap; }
+  .agents-table td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--surface);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  /* ====== INSTALL ====== */
+  .install-section {
+    background: var(--cream-light);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .install-section .section-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .install-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .install-block .code-block {
+    margin: 0;
+    white-space: pre;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (max-width: 500px) {
+    .install-section .code-block { font-size: 11.5px; padding: 16px; }
+  }
+
+  /* ====== CTA ====== */
+  .cta-section {
+    text-align: center;
+    background: linear-gradient(180deg, var(--canvas) 0%, var(--cream) 100%);
+    position: relative;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--sunset-3), var(--sunset-1), var(--sunset-3), var(--primary));
+  }
+  .cta-section .section-title { margin: 0 auto 16px; }
+  .cta-section .section-desc { margin: 0 auto 36px; }
+
+  /* ====== FOOTER ====== */
+  footer {
+    background: var(--code-bg);
+    color: var(--on-dark-muted);
+    padding: 40px 24px;
+    font-size: 14px;
+  }
+  footer .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  footer .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--on-dark);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  footer .footer-brand img { width: 24px; height: 24px; border-radius: var(--radius-sm); }
+  footer a {
+    color: var(--on-dark-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  footer a:hover { color: var(--primary); }
+  .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+  .sunset-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--sunset-1), var(--sunset-2), var(--sunset-3), var(--sunset-4), var(--primary));
+  }
+
+  @media (max-width: 500px) {
+    footer .footer-inner {
+      flex-direction: column;
+      text-align: center;
+    }
+    .footer-links { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <img src="images/logo.png" alt="recit logo">
+    recit
+  </a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="#features" onclick="this.parentElement.classList.remove('open')">Features</a>
+    <a href="#how-it-works" onclick="this.parentElement.classList.remove('open')">How It Works</a>
+    <a href="#agents" onclick="this.parentElement.classList.remove('open')">Agents</a>
+    <a href="#install" onclick="this.parentElement.classList.remove('open')">Install</a>
+    <a href="https://github.com/recit-ai/recit" class="nav-cta">GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> v1.0.0 — Now Available</div>
+  <h1>Record it.<br><span class="highlight">Agents see it.</span></h1>
+  <p class="subtitle">The free, open-source screen recording CLI for AI agents. Claude Code, Codex, Cursor, Z Code — they all see what you see. Zero cost. 100% local.</p>
+  <div class="hero-actions">
+    <a href="#install" class="btn btn-primary">
+      <svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:#fff"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Get Started
+    </a>
+    <a href="https://github.com/recit-ai/recit" class="btn btn-cream">
+      <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      View on GitHub
+    </a>
+  </div>
+  <div class="hero-code">
+    <span class="cmd">claude mcp add</span> recit -- npx -y @recit/mcp
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('claude mcp add recit -- npx -y @recit/mcp'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000)">Copy</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="num">$0</div><div class="label">Total Cost</div></div>
+  <div class="stat"><div class="num">0</div><div class="label">API Keys</div></div>
+  <div class="stat"><div class="num">3</div><div class="label">Platforms</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">MCP Tools</div></div>
+  <div class="stat"><div class="num">100%</div><div class="label">Local & Private</div></div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-eyebrow">Features</div>
+    <h2 class="section-title">Everything agents need to see your screen</h2>
+    <p class="section-desc">Video recording, screenshots, frame extraction, event logging — all through a simple CLI that any AI agent can call.</p>
+
+    <div class="features-grid">
+      <!-- Recording -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
+        <h3>Screen Recording</h3>
+        <p>Record full screen, specific windows, or regions. ffmpeg-powered, cross-platform. Default 15fps, configurable up to 60fps.</p>
+        <span class="free-tag">Free forever</span>
+      </div>
+      <!-- Screenshot -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <h3>Instant Screenshots</h3>
+        <p>Capture the current screen in a single command. Outputs PNG with metadata. JSON mode for structured agent consumption.</p>
+        <span class="free-tag">Free forever</span>
+      </div>
+      <!-- MCP Server -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+        </div>
+        <h3>MCP Server</h3>
+        <p>5 tools exposed via Model Context Protocol. Works with Claude Code, Cursor, Codex, Windsurf, Cline — any MCP client.</p>
+        <span class="free-tag">stdio — no server</span>
+      </div>
+      <!-- Frames -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        </div>
+        <h3>Frame Extraction</h3>
+        <p>Extract key frames from recordings using scene detection. Token-aware output for vision model budgets.</p>
+        <span class="free-tag">Free forever</span>
+      </div>
+      <!-- Events -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h3>Event Logging</h3>
+        <p>Log mouse clicks, keystrokes, window switches synced to video clock. JSONL format. Perfect for agent replay.</p>
+        <span class="free-tag">Free forever</span>
+      </div>
+      <!-- Diff -->
+      <div class="feature-card">
+        <div class="icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </div>
+        <h3>Before/After Diff</h3>
+        <p>Visual comparison output for agent reasoning. Essential for UI testing loops — "what changed after my code edit?"</p>
+        <span class="free-tag">Free forever</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="code-section" id="how-it-works">
+  <div class="section-inner">
+    <div>
+      <div class="section-eyebrow">How It Works</div>
+      <h2 class="section-title">One command. Agent gets eyes.</h2>
+      <p class="section-desc">Your AI agent spawns recit as a local process. No cloud, no hosting, no server. Communication over stdin/stdout. That's it.</p>
+
+      <div class="agent-pills">
+        <div class="agent-pill"><div class="dot" style="background:var(--primary)"></div>Claude Code</div>
+        <div class="agent-pill"><div class="dot" style="background:var(--sunset-3)"></div>Codex</div>
+        <div class="agent-pill"><div class="dot" style="background:var(--charcoal)"></div>Cursor</div>
+        <div class="agent-pill"><div class="dot" style="background:var(--sunset-1)"></div>Z Code</div>
+        <div class="agent-pill"><div class="dot" style="background:var(--slate)"></div>Windsurf</div>
+        <div class="agent-pill"><div class="dot" style="background:var(--muted)"></div>Cline</div>
+      </div>
+    </div>
+    <div class="code-block"><span class="comment"># 1. Install (one-time)</span>
+<span class="cmd">claude mcp add</span> recit -- npx -y @recit/mcp
+
+<span class="comment"># 2. Agent captures screenshot</span>
+Agent calls: <span class="key">recit_snap</span> --json
+Returns: { "path": "/tmp/recit_snap_...",
+         "size": 2048, "format": "png" }
+
+<span class="comment"># 3. Record a full session</span>
+Agent calls: <span class="key">recit_start</span> --output ./demo.mp4
+Agent does work...
+Agent calls: <span class="key">recit_stop</span> rec_123
+Returns: { "path": "./demo.mp4",
+         "duration": 12.5, "size": 307200 }
+
+<span class="comment"># 4. Extract frames</span>
+Agent calls: <span class="key">recit_frames</span> ./demo.mp4 --max 10
+Returns: { "frames": [...], "count": 8 }</div>
+  </div>
+</section>
+
+<!-- IMAGE FEATURES -->
+<section>
+  <div class="section-inner">
+    <div class="image-feature">
+      <img src="images/hero-illustration.png" alt="AI agent recording screen" class="feat-img" loading="lazy">
+      <div class="feat-content">
+        <div class="section-eyebrow">Agent Vision</div>
+        <h2 class="section-title">Give every AI agent a screen recorder</h2>
+        <p class="section-desc">Your agents can now watch what you watch. Record a bug, capture a workflow, document a process — the agent sees it and acts on it. No manual screenshots needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top: 0;">
+  <div class="section-inner">
+    <div class="image-feature reverse">
+      <img src="images/feature-recording.png" alt="Screen recording for AI agents" class="feat-img" loading="lazy">
+      <div class="feat-content">
+        <div class="section-eyebrow">Zero Cost Architecture</div>
+        <h2 class="section-title">ffmpeg + MCP + stdio = $0 forever</h2>
+        <p class="section-desc">No cloud APIs. No paid services. No hosting. ffmpeg handles recording. MCP handles agent integration. stdio means it runs on the user's own machine.</p>
+        <div style="margin-top: 16px;">
+          <a href="#install" class="btn btn-primary">
+            <svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:#fff"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Get Started Free
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top: 0;">
+  <div class="section-inner">
+    <div class="image-feature">
+      <img src="images/feature-cli.png" alt="Terminal CLI interface" class="feat-img" loading="lazy">
+      <div class="feat-content">
+        <div class="section-eyebrow">CLI-First</div>
+        <h2 class="section-title">Pipe it. Script it. Agent it.</h2>
+        <p class="section-desc">recit is a Unix citizen. JSON output for agents. Human-readable stderr for you. Works in Docker, CI/CD, SSH sessions, and your local terminal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section style="background: var(--cream-light); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);">
+  <div class="section-inner">
+    <div class="section-eyebrow">Quick Start</div>
+    <h2 class="section-title">Up and running in 60 seconds</h2>
+    <p class="section-desc">Three steps. Zero configuration. No accounts.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Install</h3>
+        <p>One command adds recit to your agent's toolkit. No download, no setup, no API keys.</p>
+      </div>
+      <div class="step">
+        <h3>Record</h3>
+        <p>Tell your agent to record. It calls recit via MCP. ffmpeg captures your screen locally.</p>
+      </div>
+      <div class="step">
+        <h3>Analyze</h3>
+        <p>The agent reads the video, extracts frames, understands what happened, and takes action.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS TABLE -->
+<section id="agents">
+  <div class="section-inner">
+    <div class="section-eyebrow">Works With</div>
+    <h2 class="section-title">Every major AI agent, out of the box</h2>
+    <p class="section-desc">Because recit uses the standard Model Context Protocol, it works with every agent that supports MCP. No custom integrations needed.</p>
+
+    <div class="table-wrap">
+      <table class="agents-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Setup</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Claude Code</td>
+            <td><code>claude mcp add recit -- npx -y @recit/mcp</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Native</span></td>
+          </tr>
+          <tr>
+            <td>OpenAI Codex</td>
+            <td><code>Shell tool &rarr; npx -y @recit/cli</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Works</span></td>
+          </tr>
+          <tr>
+            <td>Cursor</td>
+            <td><code>.cursor/mcp.json config</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Native</span></td>
+          </tr>
+          <tr>
+            <td>Z Code</td>
+            <td><code>MCP config or shell</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Works</span></td>
+          </tr>
+          <tr>
+            <td>Windsurf</td>
+            <td><code>Cascade MCP config</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Native</span></td>
+          </tr>
+          <tr>
+            <td>Any MCP Client</td>
+            <td><code>Standard MCP protocol</code></td>
+            <td><span class="status-badge"><svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> Universal</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="install-section" id="install">
+  <div class="section-inner">
+    <div class="section-eyebrow">Install</div>
+    <h2 class="section-title">One line. Done.</h2>
+    <p class="section-desc">No npm install needed. npx downloads and runs recit on demand. You just need Node.js 18+ and ffmpeg (both free).</p>
+
+    <div class="install-blocks">
+      <div class="install-block">
+        <div class="install-label">For Claude Code</div>
+        <div class="code-block"><span class="cmd">claude mcp add</span> recit -- npx -y @recit/mcp</div>
+      </div>
+      <div class="install-block">
+        <div class="install-label">For Cursor / VS Code</div>
+        <div class="code-block">{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"recit"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@recit/mcp"</span>]
+    }
+  }
+}</div>
+      </div>
+      <div class="install-block">
+        <div class="install-label">Prerequisites</div>
+        <div class="code-block"><span class="comment"># Both free, both common</span>
+<span class="cmd">node --version</span>    <span class="comment"># v18.0.0+</span>
+<span class="cmd">ffmpeg -version</span>   <span class="comment"># any version</span>
+
+<span class="comment"># Install ffmpeg if missing:</span>
+<span class="cmd">brew install ffmpeg</span>      <span class="comment"># macOS</span>
+<span class="cmd">sudo apt install ffmpeg</span>  <span class="comment"># Linux</span>
+<span class="cmd">winget install ffmpeg</span>    <span class="comment"># Windows</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-inner" style="max-width:600px;">
+    <div class="section-eyebrow">Open Source</div>
+    <h2 class="section-title" style="margin:0 auto;">Free forever. Apache 2.0 licensed. No catch.</h2>
+    <p class="section-desc" style="margin:0 auto 36px;">Built with ffmpeg + TypeScript + MCP. Published to npm. Source on GitHub. Your data never leaves your machine.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://github.com/recit-ai/recit" class="btn btn-primary">
+        <svg class="svg-icon sm" viewBox="0 0 24 24" style="stroke:#fff"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Star on GitHub
+      </a>
+      <a href="#install" class="btn btn-cream">Install Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- SUNSET BAR -->
+<div class="sunset-bar"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="images/logo.png" alt="recit">
+      recit — Record it. Agents see it.
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/recit-ai/recit">GitHub</a>
+      <a href="#">npm</a>
+      <a href="#">Docs</a>
+      <a href="#">Apache 2.0 License</a>
+    </div>
+    <div style="font-size:12px; color: var(--muted);">Built with $0 and care</div>
+  </div>
+</footer>
+
+</body>
+</html>
