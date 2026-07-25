@@ -1,6 +1,6 @@
 {
-  "name": "recit",
-  "version": "1.0.1",
+  "name": "@codedbytahir/recit",
+  "version": "1.0.3",
   "description": "Screen recording tool for AI agents — $0 cost, 100% local, no cloud",
   "type": "module",
   "main": "dist/mcp-entry.js",

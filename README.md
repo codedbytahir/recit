@@ -18,7 +18,7 @@ Free, open-source screen recording CLI + MCP server for AI agents. Zero cost. 10
 
 ```bash
 # For Claude Code
-claude mcp add recit -- npx -y recit
+claude mcp add recit -- npx -y @codedbytahir/recit
 
 # For Cursor / VS Code — add to mcp.json:
 {
