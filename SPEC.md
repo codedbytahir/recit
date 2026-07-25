@@ -4,7 +4,7 @@
 ### Identity
 - **Name**: recit (pronounced "rek-it")
 - **Tagline**: "Record it. Agents see it."
-- **Package**: `@recit/cli` (CLI) + `@recit/mcp` (MCP Server)
+- **Package**: `recit` (CLI) + `recit` (MCP Server)
 - **License**: MIT
 - **Philosophy**: $0 cost. Runs 100% locally. No cloud. No API keys.
 

@@ -118,7 +118,7 @@ async function main(): Promise<void> {
     recit mcp                    # Start MCP server (stdio)
   
   As MCP server:
-    claude mcp add recit -- npx -y @recit/mcp
+    claude mcp add recit -- npx -y recit
   
   Examples:
     recit start --output ./demo.mp4 --json

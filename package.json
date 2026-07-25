@@ -1,5 +1,5 @@
 {
-  "name": "@recit/cli",
+  "name": "recit",
   "version": "1.0.1",
   "description": "Screen recording tool for AI agents — $0 cost, 100% local, no cloud",
   "type": "module",
