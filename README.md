@@ -90,7 +90,7 @@ ffmpeg (free, local)
 ## Development
 
 ```bash
-git clone https://github.com/recit-ai/recit.git
+git clone https://github.com/codedbytahir/recit.git
 cd recit
 npm install
 npm test        # Run 43 tests

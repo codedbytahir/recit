@@ -1,6 +1,6 @@
 {
   "name": "@zum-x/recit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Screen recording tool for AI agents — $0 cost, 100% local, no cloud",
   "type": "module",
   "main": "dist/mcp-entry.js",
@@ -26,7 +26,7 @@
     "cli",
     "model-context-protocol"
   ],
-  "author": "recit",
+  "author": "Tahir Rasool",
   "license": "Apache-2.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
@@ -47,6 +47,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/recit-ai/recit"
-  }
+    "url": "git+https://github.com/codedbytahir/recit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/codedbytahir/recit/issues"
+  },
+  "homepage": "https://codedbytahir.github.io/recit/"
 }
